@@ -10,24 +10,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. ติดตั้ง Java หลายเวอร์ชันเพื่อให้เลือกใช้
-      - name: Set up JDKs
+      # โปรเจกต์ที่ใช้ Gradle 5.4.1 ต้องใช้ Java 8 เท่านั้น
+      - name: Set up JDK 8
         uses: actions/setup-java@v4
         with:
-          java-version: |
-            8
-            17
+          java-version: '8'
           distribution: 'temurin'
 
-      # 2. ตั้งค่า JAVA_HOME ให้เป็น Java 17 สำหรับใช้กับ SDK Manager
+      # ติดตั้ง Android SDK
       - name: Setup Android SDK
-        run: |
-          export JAVA_HOME=$JAVA_HOME_17_X64
-          uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v3
 
-      # 3. สลับกลับมาใช้ Java 8 สำหรับการ Build โปรเจกต์เก่า
+      # สำคัญ: ไม่ต้องอัปเกรด Gradle Wrapper 
+      # ให้ใช้ของเดิมที่มากับโปรเจกต์ (5.4.1)
       - name: Build with Gradle
         run: |
-          export JAVA_HOME=$JAVA_HOME_8_X64
           chmod +x ./gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
