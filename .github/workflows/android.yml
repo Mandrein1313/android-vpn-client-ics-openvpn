@@ -10,18 +10,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # ปรับจาก 11 เป็น 17 เพื่อให้รองรับ Command-line tools เวอร์ชันล่าสุด
-      - name: Set up JDK 17
+      # 1. ติดตั้ง Java หลายเวอร์ชันเพื่อให้เลือกใช้
+      - name: Set up JDKs
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: |
+            8
+            17
           distribution: 'temurin'
 
+      # 2. ตั้งค่า JAVA_HOME ให้เป็น Java 17 สำหรับใช้กับ SDK Manager
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        run: |
+          export JAVA_HOME=$JAVA_HOME_17_X64
+          uses: android-actions/setup-android@v3
 
-      - name: Change the wrapper Permissions
-        run: chmod +x ./gradlew
-
+      # 3. สลับกลับมาใช้ Java 8 สำหรับการ Build โปรเจกต์เก่า
       - name: Build with Gradle
-        run: ./gradlew assembleDebug
+        run: |
+          export JAVA_HOME=$JAVA_HOME_8_X64
+          chmod +x ./gradlew
+          ./gradlew assembleDebug
